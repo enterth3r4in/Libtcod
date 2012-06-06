@@ -86,7 +86,7 @@ while not Libtcod.console_is_window_closed():
     # Blit GUI elements:
     #Libtcod.image_blit_rect(pathimage, console.Root, 0, 0, -1, -1, Libtcod.BKGND_DARKEN)
     Libtcod.console_blit(ConsoleGUI,0,0,0,0,console.Root,1,1,0.8,0.5)
-    Libtcod.console_blit(console.GUI,0,0,0,0,console.Root,0,0,1.0,0.0)
+    Libtcod.console_blit(console.GUI,0,0,0,0,console.Root,0,0,1,0.0)
     
     # Always last:
     Libtcod.console_flush()
