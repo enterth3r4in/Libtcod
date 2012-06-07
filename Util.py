@@ -1,5 +1,5 @@
 import libtcodpy as Libtcod
-import Events
+import Event
 
 class ViewPort():
     X = 0
@@ -65,72 +65,3 @@ class Global():
     Entities = []
     Items = []
     Events = []
-
-class Event():
-    def __init__(self, name, owner, target, duration, instant, unique, quant, function, params):
-        self.Name = name
-        self.Duration = duration
-        self.MaxDuration = duration
-        self.Function = function
-        self.Parameters = params
-        self.Target = target
-        self.Owner = owner
-        self.Finished = False
-        # If True then the function is ran when duration finished else ran constantly until finished.
-        self.Instant = instant
-        self.Unique = unique
-        self.Life = 0
-    
-    def Run(self):
-        self.Duration -= Libtcod.sys_get_last_frame_length()
-        if self.Instant:
-            if self.Unique: # Instant Unique event
-                if self.Duration <= 0:
-                    if self.Life == -1:
-                        # The unique instant event is finished:
-                        self.Duration = 0
-                        self.Life = 0
-                        self.Finished = True
-                        self.Function(*self.Parameters)
-                        return True
-                    else:
-                        # Still has life so take one away and reset instant event:
-                        self.Life -= 1
-                        self.Duration = self.MaxDuration
-                        self.Function(*self.Parameters)
-                        return True
-            else: # Instant Normal event
-                if self.Duration <= 0:
-                    # The normal instant event is finished:
-                    self.Duration = 0
-                    self.Life = 0
-                    self.Finished = True
-                    self.Function(*self.Parameters)
-                    return True
-        else:
-            if self.Unique: # Constant Unique event
-                # Check if finished:
-                if self.Duration <= 0:
-                    if self.Life == -1:
-                        # The unique instant event is finished:
-                        self.Duration = 0
-                        self.Life = 0
-                        self.Finished = True
-                        return True
-                    else:
-                        # Still has life so take one away and reset instant event:
-                        self.Life -= 1
-                        self.Duration = self.MaxDuration
-                        return True
-                # Run event every tick:
-                self.Function(*self.Parameters)
-            else: # Constant Normal event
-                if self.Duration <= 0:
-                    self.Duration = 0
-                    self.Finished = True
-                    return True
-                # Run event every tick:
-                self.Function(*self.Parameters)
-        return False
-    
-

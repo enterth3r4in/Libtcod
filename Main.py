@@ -21,9 +21,10 @@ Libtcod.mouse_show_cursor(True)
 player = Player()
 player.Blend = Libtcod.BKGND_MULTIPLY
 player.AddToLevel(level, 40, 15)
+player.Path = Libtcod.path_new_using_map(player.Level.FOVMap, 1.41)
 
 ConsoleGUI = Libtcod.console_new(20, 10)
-Libtcod.sys_set_fps(30)
+Libtcod.sys_set_fps(60)
 Libtcod.console_set_custom_font('./fonts/consolas12.png', Libtcod.FONT_TYPE_GREYSCALE | Libtcod.FONT_LAYOUT_TCOD)
 image = Libtcod.image_load("./images/beach.bmp")
 #palm = Libtcod.image_load("./images/palm.png")
@@ -37,9 +38,9 @@ while not Libtcod.console_is_window_closed():
     # Handle entity events:
     for tEntity in Global.Entities:
         for tEvent in tEntity.Events:
-            tEvent.Run()
-            if tEvent.Finished:
+            if tEvent.State == "Finished":
                 tEntity.Events.remove(tEvent)
+            tEvent.Run()
 
     Libtcod.console_clear(console.Root)
     Libtcod.console_clear(console.GUI)
@@ -51,21 +52,23 @@ while not Libtcod.console_is_window_closed():
     Libtcod.console_print(ConsoleGUI, 1, 1, str("FPS: " + str(Libtcod.sys_get_fps())))
     Libtcod.console_print(ConsoleGUI, 1, 2, str(player.X) + ", " + str(player.Y))
     if player.Events:
-        Libtcod.console_print(ConsoleGUI, 1, 3, str(player.Events[0].Name))
-    Libtcod.console_print(ConsoleGUI, 1, 4, str(image))
+        Libtcod.console_print(ConsoleGUI, 1, 3, str(player.Events[0].Id))
+    Libtcod.console_print(ConsoleGUI, 1, 4, str(player.Health))
     
     # Get the mouse status before checking:
     Libtcod.mouse_get_status()
     
     if mouse.lbutton_pressed:
-        player.MoveSpeed = 0.5
-        player.Events = []
+        player.MoveSpeed = 2.0
         player.FindPath(mouse.cx, mouse.cy)
     
     if mouse.rbutton_pressed:
-        player.MoveSpeed = 0.05
-        player.Events = []
-        player.FindPath(mouse.cx, mouse.cy)
+        #Event.Create(name, sdur, mdur, edur, func, params)
+        event = Event.Create("eAddHealthSelf", 2, 5, 2, Event.eAddHealthSelf, [5.0])
+        event.Owner = player
+        event.Unique = True
+        event.OnEnd = False
+        Event.Add(event, player.Events)
     
     if player.Path:
         player.WalkPath()

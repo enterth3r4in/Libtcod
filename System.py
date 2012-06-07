@@ -64,6 +64,7 @@ class Entity(Object):
     PathSize = 0
     MoveSpeed = 0.1
     State = "none"
+    Path = None
     
     def AddItem(self, item):
         if len(self.Inventory.Content) < self.Inventory.Size:
@@ -87,12 +88,11 @@ class Entity(Object):
             path = Libtcod.path_new_using_map(self.Level.FOVMap, 1.41)
             Libtcod.path_compute(path, self.X, self.Y, x, y)
             if not Libtcod.path_is_empty(path):
-                self.PathSize = Libtcod.path_size(path)
+                #self.PathSize = Libtcod.path_size(self.Path)
                 self.Path = path
                 return True
             else:
-                self.Path = None
-                self.PathSize = 0
+                #self.PathSize = 0
                 return False
     
     def WalkPath(self):
@@ -102,8 +102,12 @@ class Entity(Object):
                 Libtcod.path_delete(self.Path)
                 self.Path = None
             else:
-                event = Event("PlayerMove", self, [self], self.MoveSpeed, True, True, 0, Events.MoveEntityPath, [self])
-                Events.Add(event, self.Events)
+                #(self, name, owner, target, duration, flags, after, quant, function, params)
+                #event = Event("PlayerNextStep", self, [self], self.MoveSpeed, Events.EV_GROUPED, True, 0, Events.eNextStepPath, [])
+                event = Event.Create("ePlayerNextStep", -1, 0.5, -1, Event.eNextStepPath, [])
+                event.Owner = self
+                event.Stacked = True
+                Event.Add(event, self.Events)
 
 class Player(Entity):
     Type = "player"
